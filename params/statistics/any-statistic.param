@@ -1,0 +1,2 @@
+# this will output all permutations of length length and for each report the statistic.
+length = 4
