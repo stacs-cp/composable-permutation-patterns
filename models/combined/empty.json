@@ -1,0 +1,22 @@
+{
+    "length": 4,
+    "classic_avoidance": [],
+    "classic_containment": [],
+    "vincular_containment": [],
+    "vincular_avoidance": [],
+    "bivincular_containment": [],
+    "bivincular_avoidance": [],
+    "mesh_containment": [],
+    "mesh_avoidance": [],
+    "boxed_mesh_containment": [],
+    "boxed_mesh_avoidance": [],
+    "consecutive_containment": [],
+    "consecutive_avoidance": [],
+    "prop_simple": false,
+    "prop_block_wise_simple": false,
+    "prop_plus_decomposable": false,
+    "prop_mins_decomposable": false,
+    "prob_involution": false,
+    "prob_derangement": false,
+    "prop_non_derangement": false
+}

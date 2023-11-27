@@ -1,0 +1,457 @@
+
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+find permPadded : matrix indexed by [int(0..length+1)] of int(0..length+1)
+
+
+
+
+given classic_avoidance : set of sequence of int
+
+
+such that
+    forAll pattern in classic_avoidance .
+        !(exists ix : matrix indexed by [int(1..|pattern|)] of int(1..length) .
+            (forAll i,j : int(1..|pattern|) . i < j -> ix[i] < ix[j]) /\
+            (forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                pattern(n1) < pattern(n2) <-> perm(ix[n1]) < perm(ix[n2])))
+
+
+
+
+given classic_containment : set of sequence of int
+
+
+such that
+    forAll pattern in classic_containment .
+         (exists ix : matrix indexed by [int(1..|pattern|)] of int(1..length) .
+            (forAll i,j : int(1..|pattern|) . i < j -> ix[i] < ix[j]) /\
+            (forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                pattern(n1) < pattern(n2) <-> perm(ix[n1]) < perm(ix[n2])))
+
+
+
+
+given vincular_containment : set of (sequence (injective) of int, set of int)
+
+
+such that
+    forAll (pattern, bars) in vincular_containment .
+        exists ix : matrix indexed by [int(1..|pattern|)] of int(1..length)
+        
+            , (forAll i,j : int(1..|pattern|) . i < j -> ix[i] < ix[j]) /\
+            $ n1 and n2 are indices
+            (forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                (pattern(n1) < pattern(n2) <-> perm(ix[n1]) < perm(ix[n2]))
+            )
+
+            .
+
+            (forAll bar in bars . ix[bar] + 1 = ix[bar+1])
+
+
+
+
+given vincular_avoidance : set of (sequence (injective) of int, set of int)
+
+
+such that
+    forAll (pattern, bars) in vincular_avoidance .
+        forAll ix : matrix indexed by [int(1..|pattern|)] of int(1..length)
+        
+            , (forAll i,j : int(1..|pattern|) . i < j -> ix[i] < ix[j]) /\
+            $ n1 and n2 are indices
+            (forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                (pattern(n1) < pattern(n2) <-> perm(ix[n1]) < perm(ix[n2]))
+            )
+
+            .
+
+            !(forAll bar in bars . ix[bar] + 1 = ix[bar+1])
+
+
+
+
+given bivincular_containment : set of (sequence (injective) of int, set of int)
+
+
+such that
+    forAll (pattern, bars) in bivincular_containment .
+        exists ix : matrix indexed by [int(1..|pattern|)] of int(1..length)
+        
+            , (forAll i,j : int(1..|pattern|) . i < j -> ix[i] < ix[j]) /\
+            $ n1 and n2 are indices
+            (forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                (pattern(n1) < pattern(n2) <-> perm(ix[n1]) < perm(ix[n2]))
+            )
+
+            .
+
+            (forAll bar in bars . ix[bar] + 1 = ix[bar+1])
+            /\
+            (forAll bar in bars . perm(ix[bar]) + 1 = perm(ix[bar+1]))        $ because bivincular
+
+
+
+
+given bivincular_avoidance : set of (sequence (injective) of int, set of int)
+
+
+such that
+    forAll (pattern, bars) in bivincular_avoidance .
+        forAll ix : matrix indexed by [int(1..|pattern|)] of int(1..length)
+        
+            , (forAll i,j : int(1..|pattern|) . i < j -> ix[i] < ix[j]) /\
+            $ n1 and n2 are indices
+            (forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                (pattern(n1) < pattern(n2) <-> perm(ix[n1]) < perm(ix[n2]))
+            )
+
+            .
+
+            !(  (forAll bar in bars . ix[bar] + 1 = ix[bar+1])
+                /\
+                (forAll bar in bars . perm(ix[bar]) + 1 = perm(ix[bar+1]))
+            )
+
+
+
+
+$ This of mesh patterns to contain
+given mesh_containment : set of (sequence(injective) of int, relation of (int * int))
+
+$ The permutation we are searching for (1..length is the permutation)
+
+
+$ creating a padded version of perm, where position 0 contains the value 0 and position length+1 contains the value length+1
+$ this is only used for mesh avoidance/containment
+such that permPadded[0] = 0, permPadded[length+1] = length+1
+such that forAll i : int(1..length) . perm(i) = permPadded[i]
+
+such that
+    $ pattern is the pattern, mesh is the mesh as a relation
+    forAll (pattern, mesh) in mesh_containment .
+    $ Build the inverse of 'pattern'. This is completely evaluated before solving.
+    exists patterninv: matrix indexed by [int(0..|pattern|+1)] of int(0..|pattern|+1),
+                patterninv[0] = 0 /\ patterninv[|pattern|+1] = |pattern|+1 /\
+                (forAll i: int(1..|pattern|) . patterninv[pattern(i)] = i).
+        $ Look for all places where the pattern can occur
+        exists ix : matrix indexed by [int(0..|pattern|+1)] of int(0..length+1),
+            and([ ix[0]=0
+                , ix[|pattern|+1]=length+1
+                , forAll i : int(0..|pattern|) . ix[i] < ix[i+1]
+                , forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                    pattern(n1) < pattern(n2) <-> permPadded[ix[n1]] < permPadded[ix[n2]]
+                ]) .
+            !(
+                $ If we find the pattern, make sure there is at least one value in some cell of the mesh
+                exists (i,j) in mesh.
+                    exists z: int(ix[i]+1..ix[i+1]-1). (permPadded[ix[patterninv[j]]] <= permPadded[z] /\ permPadded[z] <= permPadded[ix[patterninv[j+1]]])
+            )
+
+
+
+
+$ This of mesh patterns to avoid
+given mesh_avoidance : set of (sequence(injective) of int, relation of (int * int))
+
+$ The permutation we are searching for (1..length is the permutation)
+
+
+$ creating a padded version of perm, where position 0 contains the value 0 and position length+1 contains the value length+1
+$ this is only used for mesh avoidance/containment
+such that permPadded[0] = 0, permPadded[length+1] = length+1
+such that forAll i : int(1..length) . perm(i) = permPadded[i]
+
+such that
+    $ pattern is the pattern, mesh is the mesh as a relation
+    forAll (pattern, mesh) in mesh_avoidance .
+    $ Build the inverse of 'pattern'. This is completely evaluated before solving.
+    exists patterninv: matrix indexed by [int(0..|pattern|+1)] of int(0..|pattern|+1),
+                patterninv[0] = 0 /\ patterninv[|pattern|+1] = |pattern|+1 /\
+                (forAll i: int(1..|pattern|) . patterninv[pattern(i)] = i).
+        $ Look for all places where the pattern can occur
+        forAll ix : matrix indexed by [int(0..|pattern|+1)] of int(0..length+1),
+            and([ ix[0]=0
+                , ix[|pattern|+1]=length+1
+                , forAll i : int(0..|pattern|) . ix[i] < ix[i+1]
+                , forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                    pattern(n1) < pattern(n2) <-> permPadded[ix[n1]] < permPadded[ix[n2]]
+                ]) .
+            (
+                $ If we find the pattern, make sure there is at least one value in some cell of the mesh
+                exists (i,j) in mesh.
+                    exists z: int(ix[i]+1..ix[i+1]-1). (permPadded[ix[patterninv[j]]] <= permPadded[z] /\ permPadded[z] <= permPadded[ix[patterninv[j+1]]])
+            )
+
+
+
+
+
+$ This of mesh patterns to contain
+given boxed_mesh_containment : set of sequence(injective) of int
+
+$ The permutation we are searching for (1..length is the permutation)
+
+
+$ creating a padded version of perm, where position 0 contains the value 0 and position length+1 contains the value length+1
+$ this is only used for mesh avoidance/containment
+such that permPadded[0] = 0, permPadded[length+1] = length+1
+such that forAll i : int(1..length) . perm(i) = permPadded[i]
+
+such that
+    $ av is the pattern
+    forAll av in boxed_mesh_containment .
+    $ Build the inverse of 'av'. This is completely evaluated before solving.
+    exists avinv: matrix indexed by [int(0..|av|+1)] of int(0..|av|+1),
+                avinv[0] = 0 /\ avinv[|av|+1] = |av|+1 /\
+                (forAll i: int(1..|av|) . avinv[av(i)] = i).
+        $ Look for all places where the pattern can occur
+        exists ix : matrix indexed by [int(0..|av|+1)] of int(0..length+1),
+            and([ ix[0]=0
+                , ix[|av|+1]=length+1
+                , forAll i : int(0..|av|) . ix[i] < ix[i+1]
+                , forAll n1, n2 : int(1..|av|) , n1 < n2 .
+                    av(n1) < av(n2) <-> permPadded[ix[n1]] < permPadded[ix[n2]]
+                ]) .
+            !(
+                $ If we find the pattern, make sure there is at least one value in some cell of the mesh
+                exists i : int(1..|av|) .
+                  exists j : int(1..|av|) .
+                    exists z: int(ix[i]+1..ix[i+1]-1). (permPadded[ix[avinv[j]]] <= permPadded[z] /\ permPadded[z] <= permPadded[ix[avinv[j+1]]])
+            )
+
+
+
+
+$ This of mesh patterns to avoid
+given boxed_mesh_avoidance : set of sequence(injective) of int
+
+$ The permutation we are searching for (1..length is the permutation)
+
+
+$ creating a padded version of perm, where position 0 contains the value 0 and position length+1 contains the value length+1
+$ this is only used for mesh avoidance/containment
+such that permPadded[0] = 0, permPadded[length+1] = length+1
+such that forAll i : int(1..length) . perm(i) = permPadded[i]
+
+such that
+    $ av is the pattern, mesh is the mesh as a relation
+    forAll av in boxed_mesh_avoidance .
+    $ Build the inverse of 'av'. This is completely evaluated before solving.
+    exists avinv: matrix indexed by [int(0..|av|+1)] of int(0..|av|+1),
+                avinv[0] = 0 /\ avinv[|av|+1] = |av|+1 /\
+                (forAll i: int(1..|av|) . avinv[av(i)] = i).
+        $ Look for all places where the pattern can occur
+        forAll ix : matrix indexed by [int(0..|av|+1)] of int(0..length+1),
+            and([ ix[0]=0
+                , ix[|av|+1]=length+1
+                , forAll i : int(0..|av|) . ix[i] < ix[i+1]
+                , forAll n1, n2 : int(1..|av|) , n1 < n2 .
+                    av(n1) < av(n2) <-> permPadded[ix[n1]] < permPadded[ix[n2]]
+                ]) .
+            (
+                $ If we find the pattern, make sure there is at least one value in some cell of the mesh
+                exists i : int(1..|av|) .
+                exists j : int(1..|av|) .
+                    exists z: int(ix[i]+1..ix[i+1]-1). (permPadded[ix[avinv[j]]] <= permPadded[z] /\ permPadded[z] <= permPadded[ix[avinv[j+1]]])
+            )
+
+
+
+
+given consecutive_containment : set of sequence (injective) of int
+
+
+such that
+    forAll pattern in consecutive_containment .
+        exists ix : matrix indexed by [int(1..|pattern|)] of int(1..length)
+        
+            , (forAll i,j : int(1..|pattern|) . i < j -> ix[i] < ix[j]) /\
+            $ n1 and n2 are indices
+            (forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                (pattern(n1) < pattern(n2) <-> perm(ix[n1]) < perm(ix[n2]))
+            )
+
+            .
+
+            (forAll bar : int(1..|pattern|-1) . ix[bar] + 1 = ix[bar+1])
+
+
+
+
+given consecutive_avoidance : set of sequence (injective) of int
+
+
+such that
+    forAll pattern in consecutive_avoidance .
+        forAll ix : matrix indexed by [int(1..|pattern|)] of int(1..length)
+        
+            , (forAll i,j : int(1..|pattern|) . i < j -> ix[i] < ix[j]) /\
+            $ n1 and n2 are indices
+            (forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                (pattern(n1) < pattern(n2) <-> perm(ix[n1]) < perm(ix[n2]))
+            )
+
+            .
+
+            !(forAll bar : int(1..|pattern|-1) . ix[bar] + 1 = ix[bar+1])
+
+
+
+
+
+$ Simple permutations do not contain intervals.
+$ An interval is a set of contiguous indices such that the values are also contiguous.
+
+$ perm is a simple permutation
+given prop_simple : bool
+such that prop_simple -> and(
+
+    [ max(subperm) - min(subperm) + 1 != |subperm|          $ the values are not contiguous
+    | i : int(1..length)                                    $ start index of the sub perm
+    , j : int(1..length)                                    $ end index of the sub perm
+    , i < j                                                 $ start comes before end
+    , (i,j) != (1,length)                                   $ it's not the full permutation
+    , letting subperm be [perm(k) | k : int(i..j)]          $ give the sub perm a name
+    ]
+
+    )
+
+
+
+
+
+given prop_block_wise_simple : bool
+such that prop_block_wise_simple -> and(
+
+    [ and([ max([ perm(i) | i : int(start..middle) ]) > min([ perm(i) | i : int(middle+1..end) ])
+          , min([ perm(i) | i : int(start..middle) ]) < max([ perm(i) | i : int(middle+1..end) ])
+          $ , forAll i : int(1..start-1) . perm(i) < minSE \/ perm(i) > maxSE
+          $ , forAll i : int(end+1..length) . perm(i) < minSE \/ perm(i) > maxSE
+          ])
+    | start, middle, end : int(1..length)
+    , start <= middle
+    , middle < end
+    , letting minSE be min([ perm(i) | i : int(start..end) ])
+    , letting maxSE be max([ perm(i) | i : int(start..end) ])
+    , maxSE - minSE = end - start
+    ]
+
+    )
+
+
+
+
+
+$ perm is plus-decomposable
+given prop_plus_decomposable : bool
+such that prop_plus_decomposable ->
+    exists sep : int(1..length-1) .
+        max([ perm(i) | i : int(1..sep) ]) < min([ perm(i) | i : int(sep+1..length) ])
+
+
+
+
+
+$ perm is minus-decomposable
+given prop_mins_decomposable : bool
+such that prop_mins_decomposable ->
+    exists sep : int(1..length-1) .
+        min([ perm(i) | i : int(1..sep) ]) > max([ perm(i) | i : int(sep+1..length) ])
+
+
+
+
+
+$ perm is an involution
+$ perm * perm = id
+
+given prop_involution : bool
+such that prop_involution ->
+    forAll i : int(1..length) .
+        perm(perm(i)) = i
+
+
+
+
+
+given prop_derangement : bool
+such that prop_derangement ->
+    forAll i : int(1..length) .
+        perm(i) != i
+
+
+
+
+
+given prop_non_derangement : bool
+such that prop_non_derangement ->
+    exists i : int(1..length) .
+        perm(i) = i
+
+
+
+
+
+$ the inversion count
+find inversionCount : int(0..length**2) $ upper bound is not tight
+such that
+    inversionCount =
+        sum([ 1
+            | i,j : int(1..length)
+            , i < j
+            , perm(i) > perm(j)
+            ])
+
+
+
+
+
+$ the inversion count
+find descentCount : int(0..length)
+such that
+    descentCount =
+        sum([ 1
+            | i : int(1..length-1)
+            , perm(i) > perm(i+1)
+            ])
+
+
+
+
+
+$ the inversion count
+find ascentCount : int(0..length)
+such that
+    ascentCount =
+        sum([ 1
+            | i : int(1..length-1)
+            , perm(i) < perm(i+1)
+            ])
+
+
+
+
+
+$ the inversion count
+find excedanceCount : int(0..length)
+such that
+    excedanceCount =
+        sum([ 1
+            | i : int(1..length)
+            , perm(i) > i
+            ])
+
+
+
+
+
+$ the inversion count
+find majorIndex : int(0..length**2)
+such that
+    majorIndex =
+        sum([ i
+            | i : int(1..length-1)
+            , perm(i) > perm(i+1)
+            ])

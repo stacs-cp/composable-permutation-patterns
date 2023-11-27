@@ -1,0 +1,11 @@
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+
+$ the inversion count
+find excedanceCount : int(0..length)
+such that
+    excedanceCount =
+        sum([ 1
+            | i : int(1..length)
+            , perm(i) > i
+            ])

@@ -1,0 +1,19 @@
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+
+$ Simple permutations do not contain intervals.
+$ An interval is a set of contiguous indices such that the values are also contiguous.
+
+$ perm is a simple permutation
+given turnedOn : bool
+such that turnedOn -> and(
+
+    [ max(subperm) - min(subperm) + 1 != |subperm|          $ the values are not contiguous
+    | i : int(1..length)                                    $ start index of the sub perm
+    , j : int(1..length)                                    $ end index of the sub perm
+    , i < j                                                 $ start comes before end
+    , (i,j) != (1,length)                                   $ it's not the full permutation
+    , letting subperm be [perm(k) | k : int(i..j)]          $ give the sub perm a name
+    ]
+
+    )

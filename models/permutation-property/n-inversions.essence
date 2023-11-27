@@ -1,0 +1,13 @@
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+
+$ number of inversions
+given nInversions : int
+given turnedOn : bool
+such that turnedOn ->
+    nInversions =
+        sum([ 1
+            | i,j : int(1..length)
+            , i < j
+            , perm(i) > perm(j)
+            ])

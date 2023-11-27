@@ -1,0 +1,11 @@
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+
+$ the inversion count
+find majorIndex : int(0..length**2)
+such that
+    majorIndex =
+        sum([ i
+            | i : int(1..length-1)
+            , perm(i) > perm(i+1)
+            ])

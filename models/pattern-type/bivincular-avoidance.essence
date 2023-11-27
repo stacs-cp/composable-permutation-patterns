@@ -1,0 +1,34 @@
+given length : int
+given bivincular_avoidance : set of (sequence (injective) of int, set of int, set of int)
+
+find perm : sequence (size length, injective) of int(1..length)
+
+$ creating a padded version of perm, where position 0 contains the value 0 and position length+1 contains the value length+1
+find permPadded : matrix indexed by [int(0..length+1)] of int(0..length+1)
+such that permPadded[0] = 0, permPadded[length+1] = length+1
+such that forAll i : int(1..length) . permPadded[i] = perm(i)
+
+
+such that
+    forAll (pattern, ind_bars, val_bars) in bivincular_avoidance .
+
+    $ Build the inverse of 'pattern'. This is completely evaluated before solving.
+    exists patterninv: matrix indexed by [int(0..|pattern|+1)] of int(0..|pattern|+1),
+                patterninv[0] = 0 /\ patterninv[|pattern|+1] = |pattern|+1 /\
+                (forAll i: int(1..|pattern|) . patterninv[pattern(i)] = i).
+
+
+        $ Look for all places where the pattern can occur
+        forAll ix : matrix indexed by [int(0..|pattern|+1)] of int(0..length+1),
+            and([ ix[0]=0
+                , ix[|pattern|+1]=length+1
+                , forAll i : int(0..|pattern|) . ix[i] < ix[i+1]
+                , forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                    pattern(n1) < pattern(n2) <-> permPadded[ix[n1]] < permPadded[ix[n2]]
+                ])
+
+            .
+            !(  (forAll bar in ind_bars . ix[bar] + 1 = ix[bar+1])
+             /\
+             (forAll bar in val_bars . permPadded[ix[patterninv[bar]]]+1 = permPadded[ix[patterninv[bar+1]]])
+            )

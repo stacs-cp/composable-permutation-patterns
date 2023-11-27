@@ -1,0 +1,35 @@
+$ This of mesh patterns to avoid
+given boxed_mesh_avoidance : set of sequence(injective) of int
+
+$ The permutation we are searching for (1..length is the permutation)
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+
+
+$ creating a padded version of perm, where position 0 contains the value 0 and position length+1 contains the value length+1
+$ this is only used for mesh avoidance/containment
+find permPadded : matrix indexed by [int(0..length+1)] of int(0..length+1)
+such that permPadded[0] = 0, permPadded[length+1] = length+1
+such that forAll i : int(1..length) . perm(i) = permPadded[i]
+
+such that
+    $ av is the pattern, mesh is the mesh as a relation
+    forAll av in boxed_mesh_avoidance .
+    $ Build the inverse of 'av'. This is completely evaluated before solving.
+    exists avinv: matrix indexed by [int(0..|av|+1)] of int(0..|av|+1),
+                avinv[0] = 0 /\ avinv[|av|+1] = |av|+1 /\
+                (forAll i: int(1..|av|) . avinv[av(i)] = i).
+        $ Look for all places where the pattern can occur
+        forAll ix : matrix indexed by [int(0..|av|+1)] of int(0..length+1),
+            and([ ix[0]=0
+                , ix[|av|+1]=length+1
+                , forAll i : int(0..|av|) . ix[i] < ix[i+1]
+                , forAll n1, n2 : int(1..|av|) , n1 < n2 .
+                    av(n1) < av(n2) <-> permPadded[ix[n1]] < permPadded[ix[n2]]
+                ]) .
+            (
+                $ If we find the pattern, make sure there is at least one value in some cell of the mesh
+                exists i : int(1..|av|-1) .
+                exists j : int(1..|av|-1) .
+                    exists z: int(ix[i]+1..ix[i+1]-1). (permPadded[ix[avinv[j]]] <= permPadded[z] /\ permPadded[z] <= permPadded[ix[avinv[j+1]]])
+            )

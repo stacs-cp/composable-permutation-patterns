@@ -1,0 +1,18 @@
+given length : int
+given consecutive_avoidance : set of sequence (injective) of int
+
+find perm : sequence (size length, injective) of int(1..length)
+
+such that
+    forAll pattern in consecutive_avoidance .
+        forAll ix : matrix indexed by [int(1..|pattern|)] of int(1..length)
+        
+            , (forAll i,j : int(1..|pattern|) . i < j -> ix[i] < ix[j]) /\
+            $ n1 and n2 are indices
+            (forAll n1, n2 : int(1..|pattern|) , n1 < n2 .
+                (pattern(n1) < pattern(n2) <-> perm(ix[n1]) < perm(ix[n2]))
+            )
+
+            .
+
+            !(forAll bar : int(1..|pattern|-1) . ix[bar] + 1 = ix[bar+1])

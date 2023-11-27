@@ -1,0 +1,12 @@
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+
+$ number of ascents
+given nAscents : int
+given turnedOn : bool
+such that turnedOn ->
+    nAscents =
+        sum([ 1
+            | i : int(1..length-1)
+            , perm(i) < perm(i+1)
+            ])

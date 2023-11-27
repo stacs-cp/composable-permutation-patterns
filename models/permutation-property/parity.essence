@@ -1,0 +1,10 @@
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+
+$ parity permutation 
+$ perm(i) is odd if i is odd, perm(i) is even if i is even.
+
+given turnedOn : bool
+such that turnedOn ->
+    forAll i : int(1..length) . 
+        (perm(i) % 2) = i % 2

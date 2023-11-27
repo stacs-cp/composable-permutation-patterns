@@ -1,0 +1,12 @@
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+
+$ the inversion count
+find inversionCount : int(0..length**2) $ upper bound is not tight
+such that
+    inversionCount =
+        sum([ 1
+            | i,j : int(1..length)
+            , i < j
+            , perm(i) > perm(j)
+            ])

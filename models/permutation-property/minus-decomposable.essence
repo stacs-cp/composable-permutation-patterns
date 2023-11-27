@@ -1,0 +1,8 @@
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+
+$ perm is minus-decomposable
+given turnedOn : bool
+such that turnedOn ->
+    exists sep : int(1..length-1) .
+        min([ perm(i) | i : int(1..sep) ]) > max([ perm(i) | i : int(sep+1..length) ])

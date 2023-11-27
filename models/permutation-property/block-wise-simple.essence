@@ -1,0 +1,20 @@
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+
+given turnedOn : bool
+such that turnedOn -> and(
+
+    [ and([ max([ perm(i) | i : int(start..middle) ]) > min([ perm(i) | i : int(middle+1..end) ])
+          , min([ perm(i) | i : int(start..middle) ]) < max([ perm(i) | i : int(middle+1..end) ])
+          $ , forAll i : int(1..start-1) . perm(i) < minSE \/ perm(i) > maxSE
+          $ , forAll i : int(end+1..length) . perm(i) < minSE \/ perm(i) > maxSE
+          ])
+    | start, middle, end : int(1..length)
+    , start <= middle
+    , middle < end
+    , letting minSE be min([ perm(i) | i : int(start..end) ])
+    , letting maxSE be max([ perm(i) | i : int(start..end) ])
+    , maxSE - minSE = end - start
+    ]
+
+    )

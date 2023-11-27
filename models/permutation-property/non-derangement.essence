@@ -1,0 +1,7 @@
+given length : int
+find perm : sequence (size length, injective) of int(1..length)
+
+given turnedOn : bool
+such that turnedOn ->
+    exists i : int(1..length) .
+        perm(i) = i
