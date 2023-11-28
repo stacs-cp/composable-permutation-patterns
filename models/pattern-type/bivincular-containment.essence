@@ -1,5 +1,5 @@
 given length : int
-given correct_bivincular_containment : set of (sequence (injective) of int, set of int, set of int)
+given bivincular_containment : set of (sequence (injective) of int, set of int, set of int)
 
 find perm : sequence (size length, injective) of int(1..length)
 
@@ -10,7 +10,7 @@ such that forAll i : int(1..length) . permPadded[i] = perm(i)
 
 
 such that
-    forAll (pattern, ind_bars, val_bars) in correct_bivincular_containment .
+    forAll (pattern, ind_bars, val_bars) in bivincular_containment .
 
     $ Build the inverse of 'pattern'. This is completely evaluated before solving.
     exists patterninv: matrix indexed by [int(0..|pattern|+1)] of int(0..|pattern|+1),
